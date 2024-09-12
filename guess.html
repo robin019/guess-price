@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜數字遊戲</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        input, button {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>猜數字遊戲</h1>
+<div id="playerInputs"></div>
+<button onclick="addPlayer()">新增參賽者</button>
+<button onclick="clearGuesses()">清空猜測</button>
+<br><br>
+<label for="answer">正確答案：</label>
+<input type="number" id="answer">
+<button onclick="calculateResults()">計算結果</button>
+<div id="results"></div>
+
+<script>
+    let players = [];
+
+    function addPlayer() {
+        if (players.length < 5) {
+            const playerNumber = players.length + 1;
+            const playerDiv = document.createElement('div');
+            playerDiv.innerHTML = `
+                    <label for="player${playerNumber}">參賽者 ${playerNumber} 名字：</label>
+                    <input type="text" id="player${playerNumber}Name">
+                    <label for="player${playerNumber}Guess">猜測：</label>
+                    <input type="number" id="player${playerNumber}Guess">
+                `;
+            document.getElementById('playerInputs').appendChild(playerDiv);
+            players.push({});
+        } else {
+            alert('最多只能有 5 名參賽者！');
+        }
+    }
+
+    function clearGuesses() {
+        players.forEach((player, index) => {
+            const playerNumber = index + 1;
+            document.getElementById(`player${playerNumber}Guess`).value = '';
+        });
+        document.getElementById('answer').value = '';
+        document.getElementById('results').innerHTML = '';
+    }
+
+    function calculateResults() {
+        const answer = parseInt(document.getElementById('answer').value);
+        if (isNaN(answer)) {
+            alert('請輸入有效的正確答案！');
+            return;
+        }
+
+        players = players.map((player, index) => {
+            const playerNumber = index + 1;
+            const name = document.getElementById(`player${playerNumber}Name`).value;
+            const guess = parseInt(document.getElementById(`player${playerNumber}Guess`).value);
+            return { name, guess, difference: Math.abs(guess - answer) };
+        });
+
+        players.sort((a, b) => a.difference - b.difference);
+
+        let resultsHTML = '<h2>結果</h2>';
+        resultsHTML += `<p>正確答案：${answer}</p>`;
+        resultsHTML += '<ol>';
+        players.forEach((player, index) => {
+            resultsHTML += `<li>${player.name} - 猜測：${player.guess}，差距：${player.difference}</li>`;
+        });
+        resultsHTML += '</ol>';
+
+        document.getElementById('results').innerHTML = resultsHTML;
+    }
+
+    // 初始新增一名參賽者
+    addPlayer();
+</script>
+</body>
+</html>
